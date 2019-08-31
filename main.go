@@ -1,9 +1,9 @@
 package main
 
-func init() {
-	// validate parameters
-}
+import (
+	"github.com/stevegood/flare/cmd"
+)
 
 func main() {
-	println("I'm a bot!")
+	cmd.Execute()
 }
