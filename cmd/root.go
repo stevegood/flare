@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/viper"
+	"github.com/stevegood/flare/bot"
 	"log"
 	"os"
 
@@ -16,27 +17,33 @@ var rootCmd = &cobra.Command{
 	Long: `Take control of channel moderation while also adding fun tools
 			like Lumpy gifs and Gonk info.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Do stuff...
-		println(discordToken)
+		discordBot := bot.NewDiscord(discordToken)
+		err := discordBot.Connect()
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 
 func init() {
-	viper.SetConfigType("yaml")
+	discordToken = os.Getenv("DISCORD_TOKEN")
+	if discordToken == "" {
+		viper.SetConfigType("yaml")
 
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("$HOME/.flare")
-	viper.AddConfigPath("/opt/flare")
+		viper.SetConfigName("config")
+		viper.AddConfigPath(".")
+		viper.AddConfigPath("$HOME/.flare")
+		viper.AddConfigPath("/opt/flare")
 
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Println("Could not find config.yml")
+		if err := viper.ReadInConfig(); err != nil {
+			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+				log.Println("Could not find config.yml")
+			}
+			log.Fatal(err)
 		}
-		log.Fatal(err)
-	}
 
-	discordToken = viper.GetString("discord.token")
+		discordToken = viper.GetString("discord.token")
+	}
 }
 
 // Execute is part of the Cobra interface
